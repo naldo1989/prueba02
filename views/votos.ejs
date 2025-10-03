@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Registro de Votos</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Escuela: <%= escuela %> - Mesa: <%= mesa %></h1>
+  <form method="POST" action="/votos">
+    <input type="number" name="cantidad" placeholder="Cantidad de votos" required>
+    <button type="submit">Registrar</button>
+  </form>
+  <a href="/resultados">Ver Resultados</a>
+</body>
+</html>
