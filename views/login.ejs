@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Ingreso de Usuario</h1>
+  <form method="POST" action="/login">
+    <input type="text" name="dni" placeholder="DNI" required>
+    <input type="password" name="password" placeholder="Contraseña" required>
+    <button type="submit">Ingresar</button>
+  </form>
+  <% if (error) { %><p class="error"><%= error %></p><% } %>
+</body>
+</html>
