@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Resultados</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Resultados Parciales</h1>
+  <table>
+    <tr><th>Escuela</th><th>Mesa</th><th>Votos</th><th>Última actualización</th></tr>
+    <% resultados.forEach(r => { %>
+      <tr>
+        <td><%= r.escuela %></td>
+        <td><%= r.mesa %></td>
+        <td><%= r.votos %></td>
+        <td><%= r.ultima_actualizacion %></td>
+      </tr>
+    <% }) %>
+  </table>
+</body>
+</html>
