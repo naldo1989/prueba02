@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Seleccionar Mesa</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Bienvenido <%= user.nombre %> <%= user.apellido %></h1>
+  <form method="POST" action="/mesa">
+    <input type="text" name="escuela" placeholder="Escuela" required>
+    <input type="text" name="mesa" placeholder="Mesa" required>
+    <button type="submit">Confirmar</button>
+  </form>
+</body>
+</html>
