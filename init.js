@@ -3,7 +3,8 @@ const pool = require("./db");
 async function init() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS usuarios (
-      dni VARCHAR(10) PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
+      dni VARCHAR(10) NOT NULL,
       password VARCHAR(10) NOT NULL,
       nombre VARCHAR(50) NOT NULL,
       apellido VARCHAR(50) NOT NULL
