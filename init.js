@@ -17,7 +17,8 @@ async function init() {
       usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
       escuela VARCHAR(100) NOT NULL,
       mesa VARCHAR(50) NOT NULL,
-      fecha TIMESTAMP DEFAULT NOW()
+      fecha TIMESTAMP DEFAULT NOW(),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(escuela, mesa)
     );
   `);
@@ -26,8 +27,12 @@ async function init() {
     id SERIAL PRIMARY KEY,
     registro_id INTEGER REFERENCES registros(id) ON DELETE CASCADE,
     nro_orden VARCHAR(20) NOT NULL,
-    total_votos INTEGER GENERATED ALWAYS AS (votos_validos + votos_nulos + votos_blancos) STORED,
-    fecha_carga TIMESTAMP DEFAULT NOW()
+    votos_validos INTEGER DEFAULT 0,
+    votos_nulos INTEGER DEFAULT 0,
+    votos_blancos INTEGER DEFAULT 0,
+    total_votos INTEGER GENERATED ALWAYS AS (total_votos + votos_validos) STORED,
+    fecha_carga TIMESTAMP DEFAULT NOW(),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
   `);
 
