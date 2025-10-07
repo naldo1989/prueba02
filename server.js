@@ -3,7 +3,42 @@ import session from "express-session";
 import bodyParser from "body-parser";
 import pg from "pg";
 import bcrypt from "bcrypt";
-import path from "path";
+import path from "path";app.post("/seleccionar", async (req, res) => {
+  const { escuela, mesa } = req.body;
+  const usuario = req.session.usuario;
+
+  if (!usuario) {
+    return res.status(401).json({ error: "Sesión no iniciada" });
+  }
+
+  try {
+    // Verificar si ya existe registro activo
+    let result = await pool.query(
+      "SELECT * FROM registros WHERE usuario_id = $1 AND escuela = $2 AND mesa = $3",
+      [usuario.id, escuela, mesa]
+    );
+
+    let registro;
+    if (result.rows.length === 0) {
+      const insert = await pool.query(
+        "INSERT INTO registros (usuario_id, escuela, mesa) VALUES ($1, $2, $3) RETURNING *",
+        [usuario.id, escuela, mesa]
+      );
+      registro = insert.rows[0];
+    } else {
+      registro = result.rows[0];
+    }
+
+    req.session.escuela = escuela;
+    req.session.mesa = mesa;
+    req.session.registro_id = registro.id;
+
+    res.json({ success: true, message: "Registro activo", registro });
+  } catch (err) {
+    console.error("Error al seleccionar escuela/mesa:", err);
+    res.status(500).json({ error: "Error al crear o recuperar registro" });
+  }
+});
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
@@ -57,20 +92,27 @@ app.post("/registro", async (req, res) => {
 });
 
 
-// ---------- LOGIN ----------
+// --------------------- LOGIN POR DNI ---------------------
 app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { dni, password } = req.body;
+
   try {
-    const result = await pool.query("SELECT * FROM usuarios WHERE email = $1", [email]);
+    const result = await pool.query("SELECT * FROM usuarios WHERE dni = $1", [dni]);
     if (result.rows.length === 0) {
-      return res.status(401).json({ error: "Usuario no encontrado" });
+      return res.status(401).json({ error: "DNI no encontrado" });
     }
 
     const usuario = result.rows[0];
-    const match = await bcrypt.compare(password, usuario.password);
-    if (!match) return res.status(401).json({ error: "Contraseña incorrecta" });
+    if (usuario.password !== password) {
+      return res.status(401).json({ error: "Contraseña incorrecta" });
+    }
 
-    req.session.usuario = { id: usuario.id, nombre: usuario.nombre };
+    req.session.usuario = {
+      id: usuario.id,
+      nombre: usuario.nombre,
+      apellido: usuario.apellido,
+    };
+
     res.json({ success: true, message: "Login exitoso" });
   } catch (err) {
     console.error("Error en login:", err);
@@ -132,37 +174,51 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 
-// ---------- REGISTRO DE USUARIO ----------
-app.post("/registro", async (req, res) => {
-  const { nombre, email, password } = req.body;
+// --------------------- CREAR USUARIO (auto genera clave) ---------------------
+app.post("/crear-usuario", async (req, res) => {
+  const { dni, nombre, apellido } = req.body;
+
   try {
-    const hashed = await bcrypt.hash(password, 10);
+    // últimos 3 dígitos del DNI
+    const password = dni.slice(-3);
+
     await pool.query(
-      "INSERT INTO usuarios (nombre, email, password) VALUES ($1, $2, $3)",
-      [nombre, email, hashed]
+      "INSERT INTO usuarios (dni, password, nombre, apellido) VALUES ($1, $2, $3, $4)",
+      [dni, password, nombre, apellido]
     );
-    res.json({ success: true, message: "Usuario registrado correctamente" });
+
+    res.json({
+      success: true,
+      message: `Usuario creado. Clave por defecto: ${password}`,
+    });
   } catch (err) {
-    console.error("Error al registrar usuario:", err);
-    res.status(500).json({ error: "Error al registrar usuario" });
+    console.error("Error al crear usuario:", err);
+    res.status(500).json({ error: "Error al crear usuario" });
   }
 });
 
 
-// ---------- LOGIN ----------
+// --------------------- LOGIN POR DNI ---------------------
 app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { dni, password } = req.body;
+
   try {
-    const result = await pool.query("SELECT * FROM usuarios WHERE email = $1", [email]);
+    const result = await pool.query("SELECT * FROM usuarios WHERE dni = $1", [dni]);
     if (result.rows.length === 0) {
-      return res.status(401).json({ error: "Usuario no encontrado" });
+      return res.status(401).json({ error: "DNI no encontrado" });
     }
 
     const usuario = result.rows[0];
-    const match = await bcrypt.compare(password, usuario.password);
-    if (!match) return res.status(401).json({ error: "Contraseña incorrecta" });
+    if (usuario.password !== password) {
+      return res.status(401).json({ error: "Contraseña incorrecta" });
+    }
 
-    req.session.usuario = { id: usuario.id, nombre: usuario.nombre };
+    req.session.usuario = {
+      id: usuario.id,
+      nombre: usuario.nombre,
+      apellido: usuario.apellido,
+    };
+
     res.json({ success: true, message: "Login exitoso" });
   } catch (err) {
     console.error("Error en login:", err);
