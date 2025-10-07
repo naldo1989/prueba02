@@ -3,7 +3,7 @@ import express from "express";
 import session from "express-session";
 import bodyParser from "body-parser";
 import pg from "pg";
-import bcrypt from "bcrypt";
+import bcrypt from 'bcryptjs';
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
