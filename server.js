@@ -163,6 +163,9 @@ app.get("/logout", (req, res) => {
 });
 
 // -------------------- INICIO --------------------
+app.get("/", (req, res) => {
+  res.redirect("/login.ejs");
+});
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
 });
