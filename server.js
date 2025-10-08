@@ -166,9 +166,7 @@ app.get("/logout", (req, res) => {
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
-app.get("/views/login", (req, res) => {
-  res.render("login");
-});
+
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
